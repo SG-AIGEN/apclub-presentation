@@ -1,0 +1,3833 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="APCLUB Platform — Telegram mini-app для участников + CRM-панель для управления клубом по подписке.">
+  <title>APCLUB Platform — Ваш клуб по подписке в Telegram</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ========================================
+       CSS CUSTOM PROPERTIES
+       ======================================== */
+    :root {
+      --navy: #1B2A4A;
+      --navy-dark: #0F1A30;
+      --gold: #C5A55A;
+      --gold-light: #D4B96E;
+      --gold-bg: rgba(197, 165, 90, 0.12);
+      --bg: #F5F5F0;
+      --card: #FFFFFF;
+      --text: #1B2A4A;
+      --text-light: #5A6A8A;
+      --text-muted: #8896B0;
+      --success: #22C55E;
+      --success-light: rgba(34, 197, 94, 0.1);
+      --danger: #EF4444;
+      --danger-light: rgba(239, 68, 68, 0.1);
+      --warning: #F59E0B;
+      --warning-light: rgba(245, 158, 11, 0.1);
+      --border: #E5E7EB;
+      --border-light: #F0F0EC;
+      --shadow-sm: 0 1px 3px rgba(27, 42, 74, 0.06);
+      --shadow-md: 0 4px 16px rgba(27, 42, 74, 0.08);
+      --shadow-lg: 0 8px 32px rgba(27, 42, 74, 0.12);
+      --shadow-xl: 0 16px 48px rgba(27, 42, 74, 0.16);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --max-width: 1200px;
+      --nav-height: 72px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ========================================
+       RESET & BASE
+       ======================================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: color var(--transition);
+    }
+
+    ul, ol {
+      list-style: none;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+    }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ========================================
+       SECTION LABEL
+       ======================================== */
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: var(--gold-bg);
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 1.125rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      max-width: 680px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .section-header .section-subtitle {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    section {
+      padding: 96px 0;
+    }
+
+    /* ========================================
+       SCROLL ANIMATION: .fade-in
+       ======================================== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+    .fade-in-delay-4 { transition-delay: 0.4s; }
+    .fade-in-delay-5 { transition-delay: 0.5s; }
+
+    /* ========================================
+       BUTTONS
+       ======================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn--gold {
+      background: var(--gold);
+      color: var(--navy-dark);
+    }
+
+    .btn--gold:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(197, 165, 90, 0.35);
+    }
+
+    .btn--outline {
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      background: transparent;
+    }
+
+    .btn--outline:hover {
+      background: rgba(197, 165, 90, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .btn--outline-white {
+      border: 2px solid rgba(255,255,255,0.4);
+      color: #fff;
+      background: transparent;
+    }
+
+    .btn--outline-white:hover {
+      border-color: #fff;
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .btn--navy {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .btn--navy:hover {
+      background: var(--navy-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn--sm {
+      padding: 10px 20px;
+      font-size: 0.875rem;
+    }
+
+    .btn--lg {
+      padding: 18px 36px;
+      font-size: 1rem;
+      border-radius: var(--radius-md);
+    }
+
+    /* ========================================
+       SECTION 1: STICKY NAVIGATION
+       ======================================== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      transition: all var(--transition);
+      background: transparent;
+    }
+
+    .nav--scrolled {
+      background: var(--card);
+      box-shadow: var(--shadow-md);
+    }
+
+    .nav__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .nav__logo {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 1.375rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .nav__logo-ap {
+      color: var(--gold);
+    }
+
+    .nav__logo-club {
+      color: #fff;
+      transition: color var(--transition);
+    }
+
+    .nav--scrolled .nav__logo-club {
+      color: var(--navy);
+    }
+
+    .nav__logo-platform {
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.5);
+      margin-left: 8px;
+      align-self: flex-end;
+      margin-bottom: 2px;
+      transition: color var(--transition);
+    }
+
+    .nav--scrolled .nav__logo-platform {
+      color: var(--text-muted);
+    }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav__link {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      transition: color var(--transition);
+    }
+
+    .nav__link:hover {
+      color: #fff;
+    }
+
+    .nav--scrolled .nav__link {
+      color: var(--text-light);
+    }
+
+    .nav--scrolled .nav__link:hover {
+      color: var(--navy);
+    }
+
+    .nav__cta {
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: var(--radius-sm);
+      background: var(--gold);
+      color: var(--navy-dark);
+      transition: all var(--transition);
+    }
+
+    .nav__cta:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(197, 165, 90, 0.35);
+    }
+
+    .nav__mobile-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 28px;
+      cursor: pointer;
+    }
+
+    .nav__mobile-toggle span {
+      display: block;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all var(--transition);
+    }
+
+    .nav--scrolled .nav__mobile-toggle span {
+      background: var(--navy);
+    }
+
+    .nav__mobile-menu {
+      display: none;
+      position: fixed;
+      top: var(--nav-height);
+      left: 0;
+      right: 0;
+      background: var(--card);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      flex-direction: column;
+      gap: 16px;
+      z-index: 999;
+    }
+
+    .nav__mobile-menu.open {
+      display: flex;
+    }
+
+    .nav__mobile-menu a {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--navy);
+      padding: 8px 0;
+    }
+
+    /* ========================================
+       SECTION 2: HERO
+       ======================================== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+      overflow: hidden;
+      padding-top: var(--nav-height);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -20%;
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197, 165, 90, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -15%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197, 165, 90, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero__content {
+      max-width: 560px;
+    }
+
+    .hero__title {
+      font-size: 3.25rem;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero__title span {
+      color: var(--gold);
+    }
+
+    .hero__subtitle {
+      font-size: 1.125rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .hero__buttons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .hero__stats {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .hero__stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 100px;
+      padding: 10px 18px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .hero__stat-icon {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+    }
+
+    .hero__phone {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* CSS Phone Mockup */
+    .phone-mockup {
+      position: relative;
+      width: 280px;
+      height: 560px;
+      background: #000;
+      border-radius: 40px;
+      padding: 12px;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.3), inset 0 0 0 2px rgba(255,255,255,0.1);
+    }
+
+    .phone-mockup__notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 28px;
+      background: #000;
+      border-radius: 0 0 16px 16px;
+      z-index: 2;
+    }
+
+    .phone-mockup__screen {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--navy) 0%, #162240 100%);
+      border-radius: 30px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 20px;
+    }
+
+    .phone-mockup__screen-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .phone-mockup__screen-logo .gold { color: var(--gold); }
+    .phone-mockup__screen-logo .white { color: #fff; }
+
+    .phone-mockup__screen-text {
+      color: rgba(255,255,255,0.5);
+      font-size: 0.75rem;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .phone-mockup__screen-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .phone-mockup__screen-action {
+      background: rgba(255,255,255,0.08);
+      border-radius: var(--radius-sm);
+      padding: 16px 8px;
+      text-align: center;
+      font-size: 0.625rem;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .phone-mockup__screen-action-icon {
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    /* CSS Laptop Mockup */
+    .laptop-mockup {
+      position: relative;
+      width: 480px;
+      max-width: 100%;
+    }
+
+    .laptop-mockup__screen {
+      background: #1a1a2e;
+      border-radius: 12px 12px 0 0;
+      padding: 8px;
+      border: 2px solid #333;
+      border-bottom: none;
+    }
+
+    .laptop-mockup__screen-inner {
+      background: linear-gradient(180deg, var(--navy) 0%, #162240 100%);
+      border-radius: 6px;
+      height: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .laptop-mockup__base {
+      background: linear-gradient(180deg, #d4d4d8, #a1a1aa);
+      height: 14px;
+      border-radius: 0 0 8px 8px;
+      margin: 0 -10%;
+      position: relative;
+    }
+
+    .laptop-mockup__base::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: #a1a1aa;
+      border-radius: 0 0 4px 4px;
+    }
+
+    /* ========================================
+       SECTION 3: PROBLEM STATEMENT
+       ======================================== */
+    .problems {
+      background: var(--bg);
+    }
+
+    .problems__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .problem-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition);
+    }
+
+    .problem-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--danger), #F97316);
+    }
+
+    .problem-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .problem-card__icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--danger-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .problem-card__icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--danger);
+    }
+
+    .problem-card__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .problem-card__text {
+      font-size: 0.9375rem;
+      color: var(--text-light);
+      line-height: 1.65;
+    }
+
+    /* ========================================
+       SECTION 4: SOLUTION OVERVIEW
+       ======================================== */
+    .solution {
+      background: var(--card);
+    }
+
+    .solution__cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-bottom: 64px;
+    }
+
+    .solution-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      border: 1px solid var(--border-light);
+      transition: all var(--transition);
+    }
+
+    .solution-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .solution-card__icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-md);
+      background: var(--gold-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .solution-card__title {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .solution-card__sub {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .solution-card__list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .solution-card__list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9375rem;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .solution-card__list li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .solution__flow {
+      background: var(--navy);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      overflow-x: auto;
+    }
+
+    .solution__flow-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-width: max-content;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      white-space: nowrap;
+    }
+
+    .flow-step__content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 100px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .flow-step__content-icon {
+      font-size: 1rem;
+    }
+
+    .flow-step__arrow {
+      color: var(--gold);
+      font-size: 1.25rem;
+      padding: 0 8px;
+      flex-shrink: 0;
+    }
+
+    /* ========================================
+       SECTION 5: MINI-APP FEATURES (TABS)
+       ======================================== */
+    .miniapp {
+      background: var(--bg);
+    }
+
+    .miniapp__layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 32px;
+      background: var(--card);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      min-height: 520px;
+    }
+
+    .miniapp__tabs {
+      background: var(--navy);
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      background: transparent;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+      width: 100%;
+    }
+
+    .tab-btn::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--gold);
+      border-radius: 0 3px 3px 0;
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+
+    .tab-btn:hover {
+      color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .tab-btn.active {
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .tab-btn.active::before {
+      opacity: 1;
+    }
+
+    .tab-btn__icon {
+      width: 20px;
+      text-align: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 36px 40px;
+      animation: tabFadeIn 0.35s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tab-content__title {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .tab-content__description {
+      font-size: 0.9375rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .tab-content__features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .tab-content__feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+    }
+
+    .tab-content__feature-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--gold-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.875rem;
+    }
+
+    .tab-content__feature-text {
+      font-size: 0.875rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .tab-content__feature-text strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    /* ========================================
+       SECTION 6: ADMIN PANEL FEATURES
+       ======================================== */
+    .admin {
+      background: var(--card);
+    }
+
+    .admin__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .admin-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      border: 1px solid var(--border-light);
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .admin-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--gold);
+    }
+
+    .admin-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--gold-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+      font-size: 1.25rem;
+    }
+
+    .admin-card__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 10px;
+    }
+
+    .admin-card__text {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      line-height: 1.7;
+    }
+
+    /* ========================================
+       SECTION 7: SUBSCRIPTION AUTOMATION (TIMELINE)
+       ======================================== */
+    .automation {
+      background: var(--bg);
+    }
+
+    .timeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      padding: 40px 0;
+      overflow-x: auto;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      top: 68px;
+      left: 40px;
+      right: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      border-radius: 2px;
+    }
+
+    .timeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      min-width: 120px;
+      flex: 1;
+    }
+
+    .timeline-step__icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 3px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition);
+    }
+
+    .timeline-step:hover .timeline-step__icon {
+      background: var(--gold);
+      transform: scale(1.1);
+    }
+
+    .timeline-step__label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--navy);
+      max-width: 110px;
+      line-height: 1.4;
+    }
+
+    .automation__note {
+      text-align: center;
+      margin-top: 48px;
+      padding: 24px 32px;
+      background: var(--gold-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(197, 165, 90, 0.2);
+    }
+
+    .automation__note p {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .automation__note span {
+      color: var(--gold);
+    }
+
+    /* ========================================
+       SECTION 8: GAMIFICATION
+       ======================================== */
+    .gamification {
+      background: var(--card);
+    }
+
+    .badges-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .badge-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px 8px;
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      transition: all var(--transition);
+    }
+
+    .badge-item:hover {
+      border-color: var(--gold);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .badge-item__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 10px;
+      color: var(--navy-dark);
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(197, 165, 90, 0.3);
+    }
+
+    .badge-item__name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .badge-item__month {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+    }
+
+    .gamification__compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .compare-card {
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .compare-card--without {
+      background: var(--danger-light);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .compare-card--with {
+      background: var(--success-light);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .compare-card__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .compare-card--without .compare-card__title {
+      color: var(--danger);
+    }
+
+    .compare-card--with .compare-card__title {
+      color: #16A34A;
+    }
+
+    .compare-card__text {
+      font-size: 0.9375rem;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .compare-card__metric {
+      margin-top: 16px;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    .compare-card--without .compare-card__metric {
+      color: var(--danger);
+    }
+
+    .compare-card--with .compare-card__metric {
+      color: var(--success);
+    }
+
+    .gamification__points {
+      text-align: center;
+      padding: 28px 32px;
+      background: var(--gold-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(197, 165, 90, 0.2);
+    }
+
+    .gamification__points p {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .gamification__points span {
+      color: var(--gold);
+    }
+
+    /* ========================================
+       SECTION 9: COMPETITOR COMPARISON TABLE
+       ======================================== */
+    .comparison {
+      background: var(--bg);
+    }
+
+    .comparison__table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .comparison__table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      min-width: 800px;
+    }
+
+    .comparison__table thead th {
+      padding: 20px 16px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .comparison__table thead th:first-child {
+      text-align: left;
+      padding-left: 24px;
+      color: var(--navy);
+    }
+
+    .comparison__table thead th.highlight {
+      background: var(--gold-bg);
+      color: var(--gold);
+      position: relative;
+    }
+
+    .comparison__table thead th.highlight::after {
+      content: 'Рекомендуем';
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-size: 0.625rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 0 0 6px 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .comparison__table tbody tr {
+      border-bottom: 1px solid var(--border-light);
+      transition: background var(--transition);
+    }
+
+    .comparison__table tbody tr:hover {
+      background: rgba(245, 245, 240, 0.5);
+    }
+
+    .comparison__table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .comparison__table tbody td {
+      padding: 16px;
+      font-size: 0.875rem;
+      text-align: center;
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    .comparison__table tbody td:first-child {
+      text-align: left;
+      padding-left: 24px;
+      font-weight: 600;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+
+    .comparison__table tbody td.highlight {
+      background: var(--gold-bg);
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .check-yes {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .check-no {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    .check-partial {
+      color: var(--warning);
+      font-weight: 700;
+    }
+
+    /* ========================================
+       SECTION 10: CASE STUDIES / TESTIMONIALS
+       (Styles for future sections 10-18)
+       ======================================== */
+    .cases {
+      background: var(--card);
+    }
+
+    .case-card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      border: 1px solid var(--border-light);
+      transition: all var(--transition);
+    }
+
+    .case-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--gold);
+    }
+
+    .case-card__quote {
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.7;
+      font-style: italic;
+      margin-bottom: 20px;
+      position: relative;
+      padding-left: 20px;
+      border-left: 3px solid var(--gold);
+    }
+
+    .case-card__author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .case-card__avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--gold-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    .case-card__name {
+      font-weight: 600;
+      color: var(--navy);
+      font-size: 0.9375rem;
+    }
+
+    .case-card__role {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .cases__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .case-card__metrics {
+      display: flex;
+      gap: 16px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .case-card__metric {
+      text-align: center;
+    }
+
+    .case-card__metric-value {
+      font-size: 1.375rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .case-card__metric-label {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    /* ========================================
+       SECTION 11: HOW IT WORKS
+       ======================================== */
+    .how-it-works {
+      background: var(--bg);
+    }
+
+    .steps-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+      padding-left: 40px;
+    }
+
+    .steps-vertical::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 24px;
+      bottom: 24px;
+      width: 2px;
+      background: var(--gold);
+    }
+
+    .step-v {
+      display: flex;
+      gap: 24px;
+      padding: 24px 0;
+      position: relative;
+    }
+
+    .step-v__number {
+      position: absolute;
+      left: -40px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-weight: 700;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-v__content {
+      flex: 1;
+    }
+
+    .step-v__title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .step-v__text {
+      font-size: 0.9375rem;
+      color: var(--text-light);
+      line-height: 1.65;
+    }
+
+    /* ========================================
+       SECTION 12: PRICING
+       ======================================== */
+    .pricing {
+      background: var(--card);
+    }
+
+    .pricing__cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .price-card {
+      background: var(--bg);
+      border-radius: var(--radius-xl);
+      padding: 40px 32px;
+      text-align: center;
+      border: 2px solid var(--border-light);
+      transition: all var(--transition);
+      position: relative;
+    }
+
+    .price-card--featured {
+      background: var(--navy);
+      border-color: var(--gold);
+      transform: scale(1.05);
+    }
+
+    .price-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .price-card--featured:hover {
+      transform: scale(1.05) translateY(-4px);
+    }
+
+    .price-card__badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 16px;
+      border-radius: 100px;
+      letter-spacing: 0.1em;
+    }
+
+    .price-card__name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .price-card--featured .price-card__name { color: #fff; }
+
+    .price-card__price {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .price-card--featured .price-card__price { color: var(--gold); }
+
+    .price-card__period {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .price-card--featured .price-card__period { color: rgba(255,255,255,0.5); }
+
+    .price-card__features {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .price-card__feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+    }
+
+    .price-card--featured .price-card__feature { color: rgba(255,255,255,0.8); }
+
+    /* ========================================
+       SECTION 13: REVENUE CALCULATOR
+       ======================================== */
+    .calculator {
+      background: var(--bg);
+    }
+
+    .calc-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .calc-field {
+      margin-bottom: 24px;
+    }
+
+    .calc-field label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .calc-field input[type="range"] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      outline: none;
+    }
+
+    .calc-field input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gold);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(197, 165, 90, 0.4);
+    }
+
+    .calc-result {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      text-align: center;
+      margin-top: 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .calc-result__value {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--gold);
+    }
+
+    .calc-result__label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ========================================
+       SECTION 14: TECHNOLOGY STACK
+       ======================================== */
+    .tech {
+      background: var(--card);
+    }
+
+    .tech__grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .tech-card {
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      padding: 28px 20px;
+      text-align: center;
+      border: 1px solid var(--border-light);
+      transition: all var(--transition);
+    }
+
+    .tech-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .tech-card__icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .tech-card__name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+
+    .tech-card__desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ========================================
+       SECTION 15: SECURITY
+       ======================================== */
+    .security {
+      background: var(--bg);
+    }
+
+    .security__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .security-card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .security-card__icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+
+    .security-card__title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .security-card__text {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    /* ========================================
+       SECTION 16: FAQ ACCORDION
+       ======================================== */
+    .faq {
+      background: var(--card);
+    }
+
+    .faq__list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .faq-item {
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      transition: all var(--transition);
+    }
+
+    .faq-item:hover {
+      border-color: var(--gold);
+    }
+
+    .faq-item--open {
+      border-color: var(--gold);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .faq-question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      width: 100%;
+      background: none;
+      border: none;
+      text-align: left;
+      gap: 16px;
+    }
+
+    .faq-question__icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--gold-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform var(--transition);
+      font-size: 0.875rem;
+      color: var(--gold);
+    }
+
+    .faq-item--open .faq-question__icon {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .faq-item--open .faq-answer {
+      max-height: 400px;
+    }
+
+    .faq-answer__inner {
+      padding: 0 24px 20px;
+      font-size: 0.9375rem;
+      color: var(--text-light);
+      line-height: 1.7;
+    }
+
+    /* ========================================
+       SECTION 17: CTA SECTION
+       ======================================== */
+    .cta-section {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -30%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197, 165, 90, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section__title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .cta-section__subtitle {
+      font-size: 1.125rem;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-section__buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ========================================
+       SECTION 18: FOOTER
+       ======================================== */
+    .footer {
+      background: var(--navy-dark);
+      padding: 64px 0 32px;
+    }
+
+    .footer__inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+
+    .footer__brand-name {
+      font-size: 1.375rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .footer__brand-name .gold { color: var(--gold); }
+    .footer__brand-name .white { color: #fff; }
+
+    .footer__brand-desc {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.6;
+      max-width: 280px;
+    }
+
+    .footer__col-title {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 20px;
+    }
+
+    .footer__links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer__link {
+      font-size: 0.875rem;
+      color: rgba(255,255,255,0.65);
+      transition: color var(--transition);
+    }
+
+    .footer__link:hover {
+      color: var(--gold);
+    }
+
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer__copyright {
+      font-size: 0.8125rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .footer__socials {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer__social {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.5);
+      transition: all var(--transition);
+      font-size: 0.875rem;
+    }
+
+    .footer__social:hover {
+      background: var(--gold);
+      color: var(--navy-dark);
+    }
+
+    /* ========================================
+       COUNTER ANIMATION
+       ======================================== */
+    .counter {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ========================================
+       RESPONSIVE: 1200px
+       ======================================== */
+    @media (max-width: 1200px) {
+      .hero__inner {
+        gap: 40px;
+      }
+
+      .hero__title {
+        font-size: 2.75rem;
+      }
+
+      .badges-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .admin__grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .pricing__cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer__inner {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* ========================================
+       RESPONSIVE: 768px (TABLET)
+       ======================================== */
+    @media (max-width: 768px) {
+      :root {
+        --nav-height: 64px;
+      }
+
+      section {
+        padding: 64px 0;
+      }
+
+      .section-title {
+        font-size: 1.875rem;
+      }
+
+      .section-subtitle {
+        font-size: 1rem;
+      }
+
+      .nav__links {
+        display: none;
+      }
+
+      .nav__cta {
+        display: none;
+      }
+
+      .nav__mobile-toggle {
+        display: flex;
+      }
+
+      .hero__inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .hero__content {
+        max-width: 100%;
+      }
+
+      .hero__title {
+        font-size: 2.25rem;
+      }
+
+      .hero__buttons {
+        justify-content: center;
+      }
+
+      .hero__stats {
+        justify-content: center;
+      }
+
+      .hero__phone {
+        display: none;
+      }
+
+      .problems__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .solution__cards {
+        grid-template-columns: 1fr;
+      }
+
+      .miniapp__layout {
+        grid-template-columns: 1fr;
+      }
+
+      .miniapp__tabs {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 12px;
+        gap: 4px;
+      }
+
+      .tab-btn {
+        padding: 10px 16px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        flex-direction: column;
+        gap: 4px;
+        text-align: center;
+        min-width: 80px;
+      }
+
+      .tab-btn::before {
+        display: none;
+      }
+
+      .tab-btn.active {
+        border-radius: var(--radius-sm);
+      }
+
+      .tab-content {
+        padding: 24px 20px;
+      }
+
+      .admin__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .timeline {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 40px;
+      }
+
+      .timeline::before {
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        height: auto;
+        right: auto;
+      }
+
+      .timeline-step {
+        flex-direction: row;
+        text-align: left;
+        gap: 16px;
+        min-width: unset;
+      }
+
+      .timeline-step__icon {
+        position: absolute;
+        left: -40px;
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
+
+      .badges-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .gamification__compare {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison__table-wrap {
+        margin: 0 -24px;
+        border-radius: 0;
+      }
+
+      .cases__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing__cards {
+        grid-template-columns: 1fr;
+      }
+
+      .price-card--featured {
+        transform: none;
+      }
+
+      .price-card--featured:hover {
+        transform: translateY(-4px);
+      }
+
+      .tech__grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .security__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer__inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+
+      .footer__bottom {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+
+      .cta-section__title {
+        font-size: 1.875rem;
+      }
+
+      .steps-vertical {
+        padding-left: 32px;
+      }
+
+      .step-v__number {
+        left: -32px;
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+      }
+    }
+
+    /* ========================================
+       RESPONSIVE: 375px (MOBILE SMALL)
+       ======================================== */
+    @media (max-width: 375px) {
+      .container {
+        padding: 0 16px;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+
+      .hero__title {
+        font-size: 1.75rem;
+      }
+
+      .hero__subtitle {
+        font-size: 1rem;
+      }
+
+      .hero__stat {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+      }
+
+      .btn--lg {
+        padding: 14px 24px;
+        font-size: 0.9375rem;
+      }
+
+      .badges-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+
+      .badge-item {
+        padding: 14px 6px;
+      }
+
+      .badge-item__icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .phone-mockup {
+        width: 220px;
+        height: 440px;
+      }
+    }
+
+    /* ========================================
+       PRINT MEDIA QUERY
+       ======================================== */
+    @media print {
+      .nav,
+      .nav__mobile-menu {
+        display: none !important;
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 40px 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      section {
+        padding: 32px 0;
+        page-break-inside: avoid;
+      }
+
+      .fade-in {
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .phone-mockup {
+        box-shadow: none;
+        border: 2px solid #ccc;
+      }
+
+      .btn {
+        border: 1px solid #ccc;
+      }
+
+      body {
+        font-size: 12pt;
+      }
+
+      .comparison__table-wrap {
+        overflow: visible;
+      }
+
+      .comparison__table {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================
+       SECTION 1: STICKY NAVIGATION
+       ============================================ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="#" class="nav__logo">
+        <span class="nav__logo-ap">AP</span><span class="nav__logo-club">CLUB</span>
+        <span class="nav__logo-platform">Platform</span>
+      </a>
+      <div class="nav__links">
+        <a href="#solution" class="nav__link">Платформа</a>
+        <a href="#miniapp" class="nav__link">Возможности</a>
+        <a href="#admin" class="nav__link">Админ-панель</a>
+        <a href="#comparison" class="nav__link">Сравнение</a>
+        <a href="#cases" class="nav__link">Кейсы</a>
+        <a href="#pricing" class="nav__link">Модель</a>
+        <a href="#contact" class="nav__link">Контакты</a>
+      </div>
+      <a href="#contact" class="nav__cta">Записаться на демо</a>
+      <button class="nav__mobile-toggle" id="mobileToggle" aria-label="Открыть меню">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="nav__mobile-menu" id="mobileMenu">
+    <a href="#solution">Платформа</a>
+    <a href="#miniapp">Возможности</a>
+    <a href="#admin">Админ-панель</a>
+    <a href="#comparison">Сравнение</a>
+    <a href="#cases">Кейсы</a>
+    <a href="#pricing">Модель</a>
+    <a href="#contact">Контакты</a>
+    <a href="#contact" class="btn btn--gold btn--sm" style="text-align:center;">Записаться на демо</a>
+  </div>
+
+  <!-- ============================================
+       SECTION 2: HERO
+       ============================================ -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero__inner">
+        <div class="hero__content">
+          <h1 class="hero__title fade-in">
+            Ваш клуб по подписке — <span>прямо в Telegram</span>
+          </h1>
+          <p class="hero__subtitle fade-in fade-in-delay-1">
+            Telegram mini-app для участников + CRM-панель для управления клубом. Без&nbsp;GetCourse. Без&nbsp;внешних ссылок. Без&nbsp;потери клиентов.
+          </p>
+          <div class="hero__buttons fade-in fade-in-delay-2">
+            <a href="#contact" class="btn btn--gold btn--lg">Запустить свой клуб</a>
+            <a href="#miniapp" class="btn btn--outline-white btn--lg">Посмотреть демо</a>
+          </div>
+          <div class="hero__stats fade-in fade-in-delay-3">
+            <div class="hero__stat">
+              <span class="hero__stat-icon">&#127942;</span>
+              12 уровней геймификации
+            </div>
+            <div class="hero__stat">
+              <span class="hero__stat-icon">&#128279;</span>
+              0 внешних ссылок
+            </div>
+            <div class="hero__stat">
+              <span class="hero__stat-icon">&#128200;</span>
+              LTV 6+ месяцев
+            </div>
+          </div>
+        </div>
+        <div class="hero__phone fade-in fade-in-delay-2">
+          <div class="phone-mockup">
+            <div class="phone-mockup__notch"></div>
+            <div class="phone-mockup__screen">
+              <div class="phone-mockup__screen-logo">
+                <span class="gold">AP</span><span class="white">CLUB</span>
+              </div>
+              <p class="phone-mockup__screen-text">Telegram Mini-App</p>
+              <div class="phone-mockup__screen-actions">
+                <div class="phone-mockup__screen-action">
+                  <div class="phone-mockup__screen-action-icon">&#128197;</div>
+                  Расписание
+                </div>
+                <div class="phone-mockup__screen-action">
+                  <div class="phone-mockup__screen-action-icon">&#129309;</div>
+                  Нетворкинг
+                </div>
+                <div class="phone-mockup__screen-action">
+                  <div class="phone-mockup__screen-action-icon">&#127873;</div>
+                  Магазин
+                </div>
+                <div class="phone-mockup__screen-action">
+                  <div class="phone-mockup__screen-action-icon">&#128203;</div>
+                  Отчёты
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 3: PROBLEM STATEMENT
+       ============================================ -->
+  <section class="problems" id="problems">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Проблема</span>
+        <h2 class="section-title">Почему 70% онлайн-клубов теряют деньги</h2>
+      </div>
+      <div class="problems__grid">
+        <div class="problem-card fade-in fade-in-delay-1">
+          <div class="problem-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <line x1="9" y1="12" x2="15" y2="12"/>
+            </svg>
+          </div>
+          <h3 class="problem-card__title">Монополисты забирают до 20%</h3>
+          <p class="problem-card__text">GetCourse, Prodamus и другие платформы съедают вашу маржу комиссиями и обязательными платёжными модулями.</p>
+        </div>
+        <div class="problem-card fade-in fade-in-delay-2">
+          <div class="problem-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 7h3a5 5 0 0 1 0 10h-3"/>
+              <path d="M9 17H6a5 5 0 0 1 0-10h3"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+              <line x1="10" y1="10" x2="14" y2="14"/>
+            </svg>
+          </div>
+          <h3 class="problem-card__title">Клиенты теряются на переходах</h3>
+          <p class="problem-card__text">Лендинг &rarr; вебинар &rarr; оплата &rarr; LMS &rarr; чат-бот. Каждый переход по внешней ссылке — минус 30% конверсии.</p>
+        </div>
+        <div class="problem-card fade-in fade-in-delay-3">
+          <div class="problem-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+              <polyline points="17 18 23 18 23 12"/>
+            </svg>
+          </div>
+          <h3 class="problem-card__title">Нулевой retention без вовлечения</h3>
+          <p class="problem-card__text">Без геймификации и комьюнити средний LTV клуба: 2-3 месяца. Участники просто забывают продлить подписку.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 4: SOLUTION OVERVIEW
+       ============================================ -->
+  <section class="solution" id="solution">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Решение</span>
+        <h2 class="section-title">Весь путь клиента — внутри Telegram</h2>
+      </div>
+      <div class="solution__cards">
+        <div class="solution-card fade-in fade-in-delay-1">
+          <div class="solution-card__icon">&#128241;</div>
+          <h3 class="solution-card__title">Telegram Mini-App</h3>
+          <p class="solution-card__sub">Для участников клуба</p>
+          <ul class="solution-card__list">
+            <li>Контент и видео-уроки</li>
+            <li>Комьюнити и нетворкинг</li>
+            <li>Геймификация (12 уровней)</li>
+            <li>Расписание и отчёты</li>
+          </ul>
+        </div>
+        <div class="solution-card fade-in fade-in-delay-2">
+          <div class="solution-card__icon">&#128187;</div>
+          <h3 class="solution-card__title">Admin Panel (CRM)</h3>
+          <p class="solution-card__sub">Для владельца клуба</p>
+          <ul class="solution-card__list">
+            <li>Дашборд и аналитика</li>
+            <li>CRM участников</li>
+            <li>Платежи и подписки</li>
+            <li>Рассылки и автотриггеры</li>
+          </ul>
+        </div>
+      </div>
+      <div class="solution__flow fade-in">
+        <div class="solution__flow-steps">
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#129302;</span> /start в боте
+            </div>
+            <span class="flow-step__arrow">&rarr;</span>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#9203;</span> Пробный период
+            </div>
+            <span class="flow-step__arrow">&rarr;</span>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#128241;</span> Mini-App
+            </div>
+            <span class="flow-step__arrow">&rarr;</span>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#128179;</span> Оплата через Stripe
+            </div>
+            <span class="flow-step__arrow">&rarr;</span>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#9989;</span> Активный участник
+            </div>
+            <span class="flow-step__arrow">&rarr;</span>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#127942;</span> Геймификация
+            </div>
+            <span class="flow-step__arrow">&rarr;</span>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__content">
+              <span class="flow-step__content-icon">&#128200;</span> LTV 6+ мес.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 5: MINI-APP FEATURES (INTERACTIVE TABS)
+       ============================================ -->
+  <section class="miniapp" id="miniapp">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Mini-App для участников</span>
+        <h2 class="section-title">Полноценное приложение — без установки</h2>
+      </div>
+      <div class="miniapp__layout fade-in">
+        <div class="miniapp__tabs">
+          <button class="tab-btn active" data-tab="tab-home">
+            <span class="tab-btn__icon">&#127968;</span> Главная
+          </button>
+          <button class="tab-btn" data-tab="tab-community">
+            <span class="tab-btn__icon">&#128101;</span> Комьюнити
+          </button>
+          <button class="tab-btn" data-tab="tab-coffee">
+            <span class="tab-btn__icon">&#9749;</span> Random Coffee
+          </button>
+          <button class="tab-btn" data-tab="tab-shop">
+            <span class="tab-btn__icon">&#127873;</span> Магазин подарков
+          </button>
+          <button class="tab-btn" data-tab="tab-schedule">
+            <span class="tab-btn__icon">&#128197;</span> Расписание
+          </button>
+          <button class="tab-btn" data-tab="tab-reports">
+            <span class="tab-btn__icon">&#128203;</span> Еженедельные отчёты
+          </button>
+          <button class="tab-btn" data-tab="tab-content">
+            <span class="tab-btn__icon">&#127916;</span> Контент
+          </button>
+          <button class="tab-btn" data-tab="tab-profile">
+            <span class="tab-btn__icon">&#127942;</span> Профиль и геймификация
+          </button>
+        </div>
+        <div class="miniapp__content">
+          <!-- Tab 1: Home -->
+          <div class="tab-content active" id="tab-home">
+            <h3 class="tab-content__title">Главная</h3>
+            <p class="tab-content__description">Персонализированный экран приветствия с быстрым доступом ко всем разделам приложения. Участник видит свой прогресс и актуальный контент.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127941;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Профиль с бейджем</strong>
+                  Текущий уровень и прогресс до следующего бейджа отображаются на главном экране.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#9889;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Быстрые действия</strong>
+                  Расписание, Нетворкинг, Магазин, Отчёты — всё доступно в одно касание.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128218;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Коллекции контента</strong>
+                  Курсы и материалы, организованные в тематические коллекции.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#11088;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Лента новинок с избранным</strong>
+                  Новый контент выделяется, а любой материал можно сохранить в избранное.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 2: Community -->
+          <div class="tab-content" id="tab-community">
+            <h3 class="tab-content__title">Комьюнити</h3>
+            <p class="tab-content__description">Полноценная социальная сеть внутри клуба. Участники видят друг друга, ищут людей с общими интересами и строят связи.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128101;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Просмотр всех участников</strong>
+                  Полный список участников клуба с профилями и контактной информацией.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128269;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Поиск по имени и username</strong>
+                  Мгновенный поиск нужного участника по имени или Telegram username.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127942;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Фильтр по уровню бейджа</strong>
+                  Фильтрация участников по уровню — от Новичка до Патриарха.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128100;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Профили участников</strong>
+                  Детальные профили с информацией о достижениях, уровне и дате вступления.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 3: Random Coffee -->
+          <div class="tab-content" id="tab-coffee">
+            <h3 class="tab-content__title">Random Coffee</h3>
+            <p class="tab-content__description">Уникальная система нетворкинга в стиле Tinder. Участники знакомятся друг с другом через механику свайпов и переходят в личные чаты.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128072;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Tinder-like свайп-интерфейс</strong>
+                  Интуитивно понятный интерфейс для знакомств: свайп вправо — интерес, влево — пропуск.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128149;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Взаимный лайк = мэтч</strong>
+                  Когда оба участника проявили интерес, система создаёт мэтч и уведомляет обоих.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128172;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Прямая ссылка на Telegram DM</strong>
+                  После мэтча — мгновенный переход в личный чат Telegram для продолжения знакомства.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 4: Gift Shop -->
+          <div class="tab-content" id="tab-shop">
+            <h3 class="tab-content__title">Магазин подарков</h3>
+            <p class="tab-content__description">Внутренний магазин, где участники обменивают заработанные баллы на реальные и цифровые подарки. Мощный инструмент мотивации.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128176;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Баланс баллов</strong>
+                  Актуальный баланс баллов отображается на главном экране магазина.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127873;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Каталог подарков</strong>
+                  Визуальный каталог с фото, описанием и стоимостью в баллах.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128260;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Обмен баллов на призы</strong>
+                  Простой процесс обмена: выбрал подарок, подтвердил, получил.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128230;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Управление стоком</strong>
+                  Ограниченные тиражи создают дефицит и усиливают желание копить баллы.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 5: Schedule -->
+          <div class="tab-content" id="tab-schedule">
+            <h3 class="tab-content__title">Расписание</h3>
+            <p class="tab-content__description">Удобный недельный календарь со всеми событиями клуба. Участники всегда в курсе предстоящих мероприятий.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128197;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Недельный календарь</strong>
+                  Наглядное представление всех событий на текущую неделю с возможностью навигации.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127909;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Типы событий</strong>
+                  Стримы, уроки, Q&amp;A-сессии, вебинары — каждый тип со своей иконкой.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127912;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Цветовая кодировка</strong>
+                  Разные цвета для разных типов событий упрощают навигацию по расписанию.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 6: Reports -->
+          <div class="tab-content" id="tab-reports">
+            <h3 class="tab-content__title">Еженедельные отчёты</h3>
+            <p class="tab-content__description">Система подотчётности, которая помогает участникам достигать результатов. Еженедельные отчёты о прогрессе с проверкой модератором.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#9997;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Отправка отчётов</strong>
+                  Участники пишут еженедельный отчёт о проделанной работе (минимум 50 символов).
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128203;</div>
+                <div class="tab-content__feature-text">
+                  <strong>История с статусами</strong>
+                  Каждый отчёт имеет статус: на проверке, одобрен или отклонён с комментарием.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127919;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Система подотчётности</strong>
+                  Регулярные отчёты повышают вовлечённость и помогают участникам не сходить с дистанции.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 7: Content -->
+          <div class="tab-content" id="tab-content">
+            <h3 class="tab-content__title">Контент</h3>
+            <p class="tab-content__description">Библиотека контента клуба с удобной навигацией. Видео-уроки, статьи и материалы — всё в одном месте.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128218;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Коллекции видео и уроков</strong>
+                  Контент организован в тематические коллекции для удобной навигации.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128344;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Сортировка по дате</strong>
+                  Хронологическая сортировка для быстрого доступа к новым материалам.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#11088;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Избранное</strong>
+                  Возможность добавить любой материал в избранное для быстрого повторного доступа.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127916;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Превью с длительностью</strong>
+                  Каждый урок отображается с превью-изображением и указанием длительности.
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Tab 8: Profile & Gamification -->
+          <div class="tab-content" id="tab-profile">
+            <h3 class="tab-content__title">Профиль и геймификация</h3>
+            <p class="tab-content__description">12-уровневая система бейджей, которая награждает участников за каждый месяц подписки. Прогресс виден, награды мотивируют оставаться.</p>
+            <div class="tab-content__features">
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127942;</div>
+                <div class="tab-content__feature-text">
+                  <strong>12 уровней бейджей</strong>
+                  От Новичка до Патриарха — каждый месяц подписки открывает новый уровень.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#128200;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Прогресс-бар</strong>
+                  Визуальный индикатор прогресса до следующего уровня мотивирует продолжать подписку.
+                </div>
+              </div>
+              <div class="tab-content__feature">
+                <div class="tab-content__feature-icon">&#127775;</div>
+                <div class="tab-content__feature-text">
+                  <strong>Разблокируемые награды</strong>
+                  Каждый новый уровень приносит бонусные баллы, которые можно потратить в магазине подарков.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 6: ADMIN PANEL FEATURES
+       ============================================ -->
+  <section class="admin" id="admin">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Admin Panel (CRM)</span>
+        <h2 class="section-title">Полный контроль вашего клуба</h2>
+      </div>
+      <div class="admin__grid">
+        <div class="admin-card fade-in fade-in-delay-1">
+          <div class="admin-card__icon">&#128202;</div>
+          <h3 class="admin-card__title">Дашборд</h3>
+          <p class="admin-card__text">8 метрик в реальном времени: активные участники, выручка, ожидающие отчёты, подарки, потенциал оплат, задолженность, retention rate, churn rate. Графики трендов за 6 месяцев.</p>
+        </div>
+        <div class="admin-card fade-in fade-in-delay-2">
+          <div class="admin-card__icon">&#128101;</div>
+          <h3 class="admin-card__title">CRM Участников</h3>
+          <p class="admin-card__text">Поиск и фильтрация, статус платежей (оплачено / просрочено / скоро), сортировка, награждение баллами, блокировка, DM через Telegram. Цветовая индикация статусов.</p>
+        </div>
+        <div class="admin-card fade-in fade-in-delay-3">
+          <div class="admin-card__icon">&#128179;</div>
+          <h3 class="admin-card__title">Платежи</h3>
+          <p class="admin-card__text">Сводная статистика, таблица платежей со статусами, подтверждение и отклонение оплат. Методы: Stripe, ручной перевод, крипто.</p>
+        </div>
+        <div class="admin-card fade-in fade-in-delay-1">
+          <div class="admin-card__icon">&#128232;</div>
+          <h3 class="admin-card__title">Рассылки</h3>
+          <p class="admin-card__text">Ручные рассылки с фильтрами получателей (все / активные / неактивные / пробные / истёкшие), автотриггеры (новый участник, истечение подписки, неактивность 7/30 дней), шаблоны с переменными {{firstName}}.</p>
+        </div>
+        <div class="admin-card fade-in fade-in-delay-2">
+          <div class="admin-card__icon">&#127916;</div>
+          <h3 class="admin-card__title">Контент</h3>
+          <p class="admin-card__text">Управление коллекциями и материалами, загрузка видео с метаданными, статусы черновик / опубликовано, указание длительности.</p>
+        </div>
+        <div class="admin-card fade-in fade-in-delay-3">
+          <div class="admin-card__icon">&#128203;</div>
+          <h3 class="admin-card__title">Модерация отчётов</h3>
+          <p class="admin-card__text">Вкладки: ожидающие / одобренные / отклонённые, отклонение с указанием причины, split-view: контент отчёта + информация об участнике.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 7: SUBSCRIPTION AUTOMATION
+       ============================================ -->
+  <section class="automation" id="automation">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Автоматизация</span>
+        <h2 class="section-title">Подписки работают на автопилоте</h2>
+      </div>
+      <div class="timeline fade-in">
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#129302;</div>
+          <div class="timeline-step__label">/start в боте</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#9203;</div>
+          <div class="timeline-step__label">7 дней бесплатно</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#128241;</div>
+          <div class="timeline-step__label">Полный доступ к Mini-App</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#128276;</div>
+          <div class="timeline-step__label">Напоминания: 3, 2, 1, 0 дней</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#128179;</div>
+          <div class="timeline-step__label">Оплата через Stripe</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#9989;</div>
+          <div class="timeline-step__label">Подписка продлена</div>
+        </div>
+        <div class="timeline-step">
+          <div class="timeline-step__icon">&#127942;</div>
+          <div class="timeline-step__label">Бейдж растёт, баллы копятся</div>
+        </div>
+      </div>
+      <div class="automation__note fade-in">
+        <p>Автоматические напоминания увеличивают конверсию продления на <span>40%</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 8: GAMIFICATION DEEP DIVE
+       ============================================ -->
+  <section class="gamification" id="gamification">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Геймификация</span>
+        <h2 class="section-title">12 уровней, которые удерживают участников на годы</h2>
+        <p class="section-subtitle">Средний LTV без геймификации: 2-3 месяца. С APCLUB Platform: 6+ месяцев.</p>
+      </div>
+      <div class="badges-grid fade-in">
+        <div class="badge-item">
+          <div class="badge-item__icon">1</div>
+          <div class="badge-item__name">Зритель</div>
+          <div class="badge-item__month">Месяц 1</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">2</div>
+          <div class="badge-item__name">Новичок</div>
+          <div class="badge-item__month">Месяц 2</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">3</div>
+          <div class="badge-item__name">Практик</div>
+          <div class="badge-item__month">Месяц 3</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">4</div>
+          <div class="badge-item__name">Трейдер</div>
+          <div class="badge-item__month">Месяц 4</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">5</div>
+          <div class="badge-item__name">Инвестор</div>
+          <div class="badge-item__month">Месяц 5</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">6</div>
+          <div class="badge-item__name">Эксперт</div>
+          <div class="badge-item__month">Месяц 6</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">7</div>
+          <div class="badge-item__name">Мастер</div>
+          <div class="badge-item__month">Месяц 7</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">8</div>
+          <div class="badge-item__name">Профи</div>
+          <div class="badge-item__month">Месяц 8</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">9</div>
+          <div class="badge-item__name">Гуру</div>
+          <div class="badge-item__month">Месяц 9</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">10</div>
+          <div class="badge-item__name">Легенда</div>
+          <div class="badge-item__month">Месяц 10</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">11</div>
+          <div class="badge-item__name">Элита</div>
+          <div class="badge-item__month">Месяц 11</div>
+        </div>
+        <div class="badge-item">
+          <div class="badge-item__icon">12</div>
+          <div class="badge-item__name">Патриарх</div>
+          <div class="badge-item__month">Месяц 12</div>
+        </div>
+      </div>
+      <div class="gamification__compare fade-in">
+        <div class="compare-card compare-card--without">
+          <h3 class="compare-card__title">&#10060; Без геймификации</h3>
+          <p class="compare-card__text">Участники теряют интерес после первого месяца. Нет причины продлевать подписку. Конверсия продлений падает с каждым месяцем. Типичный паттерн: всплеск активности на старте, затем резкий спад и отток.</p>
+          <div class="compare-card__metric">LTV: 2-3 мес.</div>
+        </div>
+        <div class="compare-card compare-card--with">
+          <h3 class="compare-card__title">&#9989; С APCLUB Platform</h3>
+          <p class="compare-card__text">Каждый месяц — новый бейдж и награда. Участники чувствуют прогресс и не хотят терять накопленный статус. Баллы мотивируют оставаться, а магазин подарков даёт конкретную цель.</p>
+          <div class="compare-card__metric">LTV: 6+ мес.</div>
+        </div>
+      </div>
+      <div class="gamification__points fade-in">
+        <p><span>+баллы каждый месяц</span> &rarr; обмен в магазине подарков &rarr; <span>мотивация оставаться</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 9: COMPETITOR COMPARISON TABLE
+       ============================================ -->
+  <section class="comparison" id="comparison">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Сравнение</span>
+        <h2 class="section-title">APCLUB Platform vs. конкуренты</h2>
+      </div>
+      <div class="comparison__table-wrap fade-in">
+        <table class="comparison__table">
+          <thead>
+            <tr>
+              <th>Функция</th>
+              <th class="highlight">APCLUB</th>
+              <th>GetCourse</th>
+              <th>Tribute</th>
+              <th>PaidSub</th>
+              <th>Gurucan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Комиссия</td>
+              <td class="highlight">10%</td>
+              <td>от 5 900 &#8381;/мес</td>
+              <td>10%</td>
+              <td>10-12%</td>
+              <td>от 2 495 &#8381;/мес</td>
+            </tr>
+            <tr>
+              <td>Telegram-нативное</td>
+              <td class="highlight"><span class="check-yes">&#10003; Да (Mini-App)</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-partial">&#9679; Да (только бот)</span></td>
+              <td><span class="check-partial">&#9679; Да (только бот)</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+            </tr>
+            <tr>
+              <td>Геймификация</td>
+              <td class="highlight"><span class="check-yes">&#10003; 12 уровней</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-partial">&#9679; Базовая</span></td>
+            </tr>
+            <tr>
+              <td>Комьюнити</td>
+              <td class="highlight"><span class="check-yes">&#10003; Полное (профили, нетворкинг, Random Coffee)</span></td>
+              <td>Форум</td>
+              <td>Чат</td>
+              <td>Чат</td>
+              <td>Группы</td>
+            </tr>
+            <tr>
+              <td>CRM админ-панель</td>
+              <td class="highlight"><span class="check-yes">&#10003; Полная веб-панель</span></td>
+              <td><span class="check-partial">&#9679; Да (сложная)</span></td>
+              <td><span class="check-partial">&#9679; Базовая</span></td>
+              <td><span class="check-partial">&#9679; Базовая</span></td>
+              <td><span class="check-yes">&#10003; Да</span></td>
+            </tr>
+            <tr>
+              <td>Рассылки + автотриггеры</td>
+              <td class="highlight"><span class="check-yes">&#10003; Да</span></td>
+              <td><span class="check-yes">&#10003; Да</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-yes">&#10003; Да</span></td>
+            </tr>
+            <tr>
+              <td>Способы оплаты</td>
+              <td class="highlight"><span class="check-yes">&#10003; Stripe + ручной + крипто</span></td>
+              <td>Встроенный</td>
+              <td>Карты</td>
+              <td>Карты</td>
+              <td>Карты</td>
+            </tr>
+            <tr>
+              <td>Сложность настройки</td>
+              <td class="highlight"><span class="check-yes">&#10003; Низкая (мы настроим)</span></td>
+              <td><span class="check-no">&#10007; Высокая (недели)</span></td>
+              <td><span class="check-yes">&#10003; Низкая</span></td>
+              <td><span class="check-yes">&#10003; Низкая</span></td>
+              <td><span class="check-partial">&#9679; Средняя</span></td>
+            </tr>
+            <tr>
+              <td>Без внешних ссылок</td>
+              <td class="highlight"><span class="check-yes">&#10003; Да</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+              <td><span class="check-partial">&#9679; Частично</span></td>
+              <td><span class="check-partial">&#9679; Частично</span></td>
+              <td><span class="check-no">&#10007; Нет</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 10: CASE STUDIES / TESTIMONIALS
+       ============================================ -->
+  <section class="cases" id="cases">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Кейсы</span>
+        <h2 class="section-title">Результаты наших клиентов</h2>
+        <p class="section-subtitle">Реальные результаты клубов, которые уже работают на платформе APCLUB.</p>
+      </div>
+      <div class="cases__grid">
+        <div class="case-card fade-in fade-in-delay-1">
+          <p class="case-card__quote">Перешли с GetCourse на APCLUB и сразу увидели разницу. Участники перестали теряться на переходах, а retention вырос в 2 раза за 3 месяца. Геймификация реально работает.</p>
+          <div class="case-card__author">
+            <div class="case-card__avatar">АМ</div>
+            <div>
+              <div class="case-card__name">Алексей М.</div>
+              <div class="case-card__role">Основатель крипто-клуба</div>
+            </div>
+          </div>
+          <div class="case-card__metrics">
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">320</div>
+              <div class="case-card__metric-label">Участников</div>
+            </div>
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">78%</div>
+              <div class="case-card__metric-label">Retention</div>
+            </div>
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">960K</div>
+              <div class="case-card__metric-label">&#8381;/мес</div>
+            </div>
+          </div>
+        </div>
+        <div class="case-card fade-in fade-in-delay-2">
+          <p class="case-card__quote">Random Coffee стал киллер-фичей нашего клуба. Участники сами знакомятся, создают проекты, и это держит их в подписке. LTV вырос до 8 месяцев.</p>
+          <div class="case-card__author">
+            <div class="case-card__avatar">ЕК</div>
+            <div>
+              <div class="case-card__name">Екатерина К.</div>
+              <div class="case-card__role">Бизнес-клуб для предпринимателей</div>
+            </div>
+          </div>
+          <div class="case-card__metrics">
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">150</div>
+              <div class="case-card__metric-label">Участников</div>
+            </div>
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">85%</div>
+              <div class="case-card__metric-label">Retention</div>
+            </div>
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">8</div>
+              <div class="case-card__metric-label">LTV мес.</div>
+            </div>
+          </div>
+        </div>
+        <div class="case-card fade-in fade-in-delay-3">
+          <p class="case-card__quote">Настроили за неделю, запустились без боли. Админ-панель удобная, всё видно: кто платит, кто нет, какой retention. Рассылки и автотриггеры экономят часы работы.</p>
+          <div class="case-card__author">
+            <div class="case-card__avatar">ДС</div>
+            <div>
+              <div class="case-card__name">Дмитрий С.</div>
+              <div class="case-card__role">Фитнес-клуб онлайн</div>
+            </div>
+          </div>
+          <div class="case-card__metrics">
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">200</div>
+              <div class="case-card__metric-label">Участников</div>
+            </div>
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">72%</div>
+              <div class="case-card__metric-label">Retention</div>
+            </div>
+            <div class="case-card__metric">
+              <div class="case-card__metric-value">598K</div>
+              <div class="case-card__metric-label">&#8381;/мес</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 11: HOW IT WORKS
+       ============================================ -->
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Как начать</span>
+        <h2 class="section-title">Запуск клуба за 5 шагов</h2>
+        <p class="section-subtitle">От идеи до работающего клуба с платежами и автоматизацией.</p>
+      </div>
+      <div class="steps-vertical fade-in">
+        <div class="step-v">
+          <div class="step-v__number">1</div>
+          <div class="step-v__content">
+            <h3 class="step-v__title">Обсуждаем вашу задачу</h3>
+            <p class="step-v__text">Созвон на 30 минут: разбираемся в вашей нише, аудитории и модели монетизации. Определяем, какие модули вам нужны: контент, нетворкинг, геймификация, магазин подарков.</p>
+          </div>
+        </div>
+        <div class="step-v">
+          <div class="step-v__number">2</div>
+          <div class="step-v__content">
+            <h3 class="step-v__title">Настраиваем платформу</h3>
+            <p class="step-v__text">Разворачиваем ваш экземпляр APCLUB: подключаем Telegram-бота, настраиваем Stripe для приёма платежей, загружаем контент и создаём коллекции.</p>
+          </div>
+        </div>
+        <div class="step-v">
+          <div class="step-v__number">3</div>
+          <div class="step-v__content">
+            <h3 class="step-v__title">Настраиваем автоматизацию</h3>
+            <p class="step-v__text">Подключаем автотриггеры: приветствие нового участника, напоминания об оплате за 3, 2, 1 день, уведомления о неактивности. Настраиваем 12 уровней бейджей под вашу тематику.</p>
+          </div>
+        </div>
+        <div class="step-v">
+          <div class="step-v__number">4</div>
+          <div class="step-v__content">
+            <h3 class="step-v__title">Запускаем и привлекаем</h3>
+            <p class="step-v__text">Публикуем бота, запускаем пробный период для первых участников. Первые пользователи получают 7 дней бесплатного доступа ко всему функционалу Mini-App.</p>
+          </div>
+        </div>
+        <div class="step-v">
+          <div class="step-v__number">5</div>
+          <div class="step-v__content">
+            <h3 class="step-v__title">Растём и оптимизируем</h3>
+            <p class="step-v__text">Анализируем дашборд: retention rate, churn rate, выручку. Используем рассылки для вовлечения, модерируем отчёты, наполняем магазин подарков. Платформа масштабируется вместе с вами.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 12: PRICING
+       ============================================ -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Тарифы</span>
+        <h2 class="section-title">Выберите подходящий план</h2>
+        <p class="section-subtitle">Без фиксированной абонентки. Вы платите процент от оборота — мы растём вместе с вами.</p>
+      </div>
+      <div class="pricing__cards fade-in">
+        <div class="price-card">
+          <h3 class="price-card__name">Старт</h3>
+          <div class="price-card__price">10%</div>
+          <p class="price-card__period">от оборота / мес</p>
+          <div class="price-card__features">
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Telegram Mini-App
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Admin Panel (CRM)
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> До 100 участников
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Контент и коллекции
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Stripe-платежи
+            </div>
+            <div class="price-card__feature">
+              <span class="check-no">&#10007;</span> Random Coffee
+            </div>
+            <div class="price-card__feature">
+              <span class="check-no">&#10007;</span> Автотриггеры
+            </div>
+          </div>
+          <a href="#contact" class="btn btn--outline btn--lg" style="width:100%;">Начать</a>
+        </div>
+        <div class="price-card price-card--featured">
+          <div class="price-card__badge">Популярный</div>
+          <h3 class="price-card__name">Рост</h3>
+          <div class="price-card__price">10%</div>
+          <p class="price-card__period">от оборота / мес</p>
+          <div class="price-card__features">
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Всё из тарифа Старт
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> До 500 участников
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Random Coffee
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Автотриггеры (4 типа)
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Магазин подарков
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Геймификация (12 уровней)
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Приоритетная поддержка
+            </div>
+          </div>
+          <a href="#contact" class="btn btn--gold btn--lg" style="width:100%;">Выбрать</a>
+        </div>
+        <div class="price-card">
+          <h3 class="price-card__name">Премиум</h3>
+          <div class="price-card__price">По запросу</div>
+          <p class="price-card__period">индивидуальные условия</p>
+          <div class="price-card__features">
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Всё из тарифа Рост
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Безлимит участников
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Кастомный дизайн Mini-App
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Кастомные модули
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> Выделенный сервер
+            </div>
+            <div class="price-card__feature">
+              <span class="check-yes">&#10003;</span> SLA + менеджер
+            </div>
+          </div>
+          <a href="#contact" class="btn btn--navy btn--lg" style="width:100%;">Обсудить</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 13: REVENUE CALCULATOR
+       ============================================ -->
+  <section class="calculator" id="calculator">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Калькулятор</span>
+        <h2 class="section-title">Сколько вы можете заработать</h2>
+        <p class="section-subtitle">Рассчитайте потенциальную выручку вашего клуба по подписке.</p>
+      </div>
+      <div class="calc-form fade-in">
+        <div class="calc-field">
+          <label>Количество участников: <strong id="calcMembersValue">50</strong></label>
+          <input type="range" id="calcMembers" min="10" max="500" value="50" step="10">
+        </div>
+        <div class="calc-field">
+          <label>Стоимость подписки: <strong id="calcPriceValue">2 990 &#8381;</strong>/мес</label>
+          <input type="range" id="calcPrice" min="990" max="9990" value="2990" step="100">
+        </div>
+        <div class="calc-result">
+          <div class="calc-result__value" id="calcMonthly">149 500 &#8381;</div>
+          <div class="calc-result__label">выручка в месяц</div>
+          <div class="calc-result__value" id="calcYearly" style="font-size:1.5rem; margin-top:12px; color:var(--navy);">1 794 000 &#8381;</div>
+          <div class="calc-result__label">выручка в год</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 14: TECHNOLOGY STACK
+       ============================================ -->
+  <section class="tech" id="tech">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Технологии</span>
+        <h2 class="section-title">Современный стек</h2>
+        <p class="section-subtitle">Надёжные и проверенные технологии для максимальной производительности и стабильности.</p>
+      </div>
+      <div class="tech__grid fade-in">
+        <div class="tech-card">
+          <div class="tech-card__icon">&#9883;</div>
+          <div class="tech-card__name">React 19</div>
+          <div class="tech-card__desc">Фронтенд Mini-App и Admin Panel</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#128295;</div>
+          <div class="tech-card__name">TypeScript</div>
+          <div class="tech-card__desc">Типизация на клиенте и сервере</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#128451;</div>
+          <div class="tech-card__name">PostgreSQL</div>
+          <div class="tech-card__desc">Надёжная реляционная БД</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#128179;</div>
+          <div class="tech-card__name">Stripe</div>
+          <div class="tech-card__desc">Безопасные платежи по всему миру</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#129302;</div>
+          <div class="tech-card__name">Telegram Bot API</div>
+          <div class="tech-card__desc">Нативная интеграция и WebApp SDK</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#127912;</div>
+          <div class="tech-card__name">Tailwind CSS</div>
+          <div class="tech-card__desc">Адаптивный и быстрый UI</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#9889;</div>
+          <div class="tech-card__name">Vite</div>
+          <div class="tech-card__desc">Мгновенная сборка и HMR</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card__icon">&#128640;</div>
+          <div class="tech-card__name">Express.js</div>
+          <div class="tech-card__desc">Быстрый REST API сервер</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 15: SECURITY
+       ============================================ -->
+  <section class="security" id="security">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">Безопасность</span>
+        <h2 class="section-title">Ваши данные под защитой</h2>
+      </div>
+      <div class="security__grid fade-in">
+        <div class="security-card">
+          <div class="security-card__icon">&#128274;</div>
+          <h3 class="security-card__title">Шифрование данных</h3>
+          <p class="security-card__text">Все данные передаются по HTTPS. Пароли хешируются. Конфиденциальная информация участников хранится в зашифрованном виде.</p>
+        </div>
+        <div class="security-card">
+          <div class="security-card__icon">&#128179;</div>
+          <h3 class="security-card__title">Stripe PCI DSS</h3>
+          <p class="security-card__text">Платежи обрабатываются через Stripe с сертификацией PCI DSS Level 1. Данные карт никогда не проходят через наши серверы.</p>
+        </div>
+        <div class="security-card">
+          <div class="security-card__icon">&#128737;</div>
+          <h3 class="security-card__title">Контроль доступа</h3>
+          <p class="security-card__text">Ролевая система доступа в админ-панели. Telegram-аутентификация для участников. Блокировка подозрительных аккаунтов.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 16: FAQ ACCORDION
+       ============================================ -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="section-header fade-in">
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Частые вопросы</h2>
+      </div>
+      <div class="faq__list fade-in">
+        <div class="faq-item">
+          <button class="faq-question">
+            Что такое Telegram Mini-App и как это работает?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Telegram Mini-App (WebApp) -- это полноценное веб-приложение, которое открывается прямо внутри мессенджера Telegram. Участнику не нужно ничего скачивать или устанавливать. Он нажимает кнопку в боте, и приложение открывается как нативный интерфейс: с навигацией, контентом, магазином подарков, нетворкингом -- всё без единого перехода по внешним ссылкам.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Нужен ли мне программист для запуска?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Нет. Мы полностью берём на себя техническую настройку: разворачиваем платформу, подключаем Telegram-бота, настраиваем Stripe для приёма платежей, загружаем контент. Вам остаётся только управлять клубом через удобную админ-панель -- добавлять контент, модерировать отчёты, запускать рассылки.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Какие способы оплаты поддерживаются?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Платформа поддерживает три способа оплаты: Stripe (банковские карты по всему миру), ручной перевод (для тех, кто предпочитает переводить напрямую) и криптовалюту. Статус каждого платежа отслеживается в админ-панели, где вы можете подтверждать или отклонять оплаты.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Как работает геймификация и зачем она нужна?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Система из 12 уровней бейджей (от Зрителя до Патриарха) награждает участников за каждый месяц подписки. За каждый уровень начисляются бонусные баллы, которые можно потратить в магазине подарков. Это создаёт ощущение прогресса и потери при отмене подписки -- средний LTV с геймификацией вырастает с 2-3 до 6+ месяцев.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Что такое Random Coffee?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Random Coffee -- это система нетворкинга в стиле Tinder внутри вашего клуба. Участники видят профили друг друга и свайпают: вправо -- интерес, влево -- пропуск. Когда оба участника проявили интерес, создаётся мэтч и они могут перейти в личный чат Telegram. Это мощный инструмент для создания ценности комьюнити и удержания участников.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Какие автотриггеры доступны?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              В платформе 4 типа автотриггеров: приветствие нового участника, напоминание об истечении подписки, уведомление после 7 дней неактивности и уведомление после 30 дней неактивности. Каждый триггер можно настроить с персонализированным шаблоном сообщения, используя переменные вроде {{firstName}}. Триггеры можно включать и выключать по отдельности.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Можно ли кастомизировать платформу под свой бренд?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Да. На тарифе Премиум мы делаем полную кастомизацию: цвета, логотип, уникальные названия бейджей, кастомные модули. На тарифах Старт и Рост платформа работает с базовым дизайном APCLUB, но контент, коллекции, подарки и тексты рассылок вы настраиваете полностью под себя.
+            </div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Как устроена аналитика в админ-панели?
+            <span class="faq-question__icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer__inner">
+              Дашборд показывает 8 ключевых метрик в реальном времени: активные участники, месячная выручка, ожидающие отчёты, активные подарки, потенциальная выручка, просроченные платежи, retention rate и churn rate. Графики трендов за 6 месяцев помогают отслеживать динамику. Также есть списки последних вступивших участников и недавних обменов подарков.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 17: CTA
+       ============================================ -->
+  <section class="cta-section" id="contact">
+    <div class="container">
+      <h2 class="cta-section__title fade-in">Готовы запустить свой клуб?</h2>
+      <p class="cta-section__subtitle fade-in fade-in-delay-1">Запишитесь на бесплатное демо и узнайте, как APCLUB Platform поможет вам создать прибыльный клуб по подписке в Telegram.</p>
+      <div class="cta-section__buttons fade-in fade-in-delay-2">
+        <a href="#" class="btn btn--gold btn--lg">Записаться на демо</a>
+        <a href="#" class="btn btn--outline-white btn--lg">Написать в Telegram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       SECTION 18: FOOTER
+       ============================================ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__brand">
+          <div class="footer__brand-name">
+            <span class="gold">AP</span><span class="white">CLUB</span>
+          </div>
+          <p class="footer__brand-desc">Платформа для создания и управления клубами по подписке в Telegram. Mini-App для участников + CRM для владельцев.</p>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Платформа</h4>
+          <div class="footer__links">
+            <a href="#miniapp" class="footer__link">Mini-App</a>
+            <a href="#admin" class="footer__link">Админ-панель</a>
+            <a href="#gamification" class="footer__link">Геймификация</a>
+            <a href="#automation" class="footer__link">Автоматизация</a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Информация</h4>
+          <div class="footer__links">
+            <a href="#pricing" class="footer__link">Тарифы</a>
+            <a href="#cases" class="footer__link">Кейсы</a>
+            <a href="#comparison" class="footer__link">Сравнение</a>
+            <a href="#faq" class="footer__link">FAQ</a>
+          </div>
+        </div>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Контакты</h4>
+          <div class="footer__links">
+            <a href="#" class="footer__link">Telegram</a>
+            <a href="#" class="footer__link">Email</a>
+            <a href="#contact" class="footer__link">Записаться на демо</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <div class="footer__copyright">&copy; 2025 APCLUB Platform. Все права защищены.</div>
+        <div class="footer__socials">
+          <a href="#" class="footer__social" aria-label="Telegram">&#9993;</a>
+          <a href="#" class="footer__social" aria-label="Instagram">&#128247;</a>
+          <a href="#" class="footer__social" aria-label="YouTube">&#9654;</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================
+       JAVASCRIPT
+       ============================================ -->
+  <script>
+    (function() {
+      'use strict';
+
+      /* ----------------------------------------
+         Intersection Observer for .fade-in
+         ---------------------------------------- */
+      var fadeEls = document.querySelectorAll('.fade-in');
+      if ('IntersectionObserver' in window) {
+        var fadeObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              fadeObserver.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        fadeEls.forEach(function(el) {
+          fadeObserver.observe(el);
+        });
+      } else {
+        // Fallback: show all immediately
+        fadeEls.forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }
+
+      /* ----------------------------------------
+         Sticky nav: add .nav--scrolled on scroll
+         ---------------------------------------- */
+      var nav = document.getElementById('nav');
+      var scrollThreshold = 100;
+
+      function handleNavScroll() {
+        if (window.scrollY > scrollThreshold) {
+          nav.classList.add('nav--scrolled');
+        } else {
+          nav.classList.remove('nav--scrolled');
+        }
+      }
+
+      window.addEventListener('scroll', handleNavScroll, { passive: true });
+      handleNavScroll();
+
+      /* ----------------------------------------
+         Mobile menu toggle
+         ---------------------------------------- */
+      var mobileToggle = document.getElementById('mobileToggle');
+      var mobileMenu = document.getElementById('mobileMenu');
+
+      if (mobileToggle && mobileMenu) {
+        mobileToggle.addEventListener('click', function() {
+          mobileMenu.classList.toggle('open');
+        });
+
+        // Close menu on link click
+        var mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(function(link) {
+          link.addEventListener('click', function() {
+            mobileMenu.classList.remove('open');
+          });
+        });
+      }
+
+      /* ----------------------------------------
+         Tab switching
+         ---------------------------------------- */
+      var tabBtns = document.querySelectorAll('.tab-btn');
+      var tabContents = document.querySelectorAll('.tab-content');
+
+      tabBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var targetId = this.getAttribute('data-tab');
+
+          // Deactivate all
+          tabBtns.forEach(function(b) { b.classList.remove('active'); });
+          tabContents.forEach(function(c) { c.classList.remove('active'); });
+
+          // Activate current
+          this.classList.add('active');
+          var targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            targetEl.classList.add('active');
+          }
+        });
+      });
+
+      /* ----------------------------------------
+         FAQ accordion
+         ---------------------------------------- */
+      document.addEventListener('click', function(e) {
+        var question = e.target.closest('.faq-question');
+        if (!question) return;
+
+        var faqItem = question.closest('.faq-item');
+        if (!faqItem) return;
+
+        // Close other open items
+        var allItems = document.querySelectorAll('.faq-item--open');
+        allItems.forEach(function(item) {
+          if (item !== faqItem) {
+            item.classList.remove('faq-item--open');
+          }
+        });
+
+        // Toggle current
+        faqItem.classList.toggle('faq-item--open');
+      });
+
+      /* ----------------------------------------
+         Counter animation
+         ---------------------------------------- */
+      var counters = document.querySelectorAll('.counter');
+
+      if (counters.length > 0 && 'IntersectionObserver' in window) {
+        var counterObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              var counter = entry.target;
+              var target = parseInt(counter.getAttribute('data-target'), 10);
+              var duration = 2000;
+              var start = 0;
+              var startTime = null;
+              var suffix = counter.getAttribute('data-suffix') || '';
+              var prefix = counter.getAttribute('data-prefix') || '';
+
+              function animateCounter(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                // Ease out cubic
+                var eased = 1 - Math.pow(1 - progress, 3);
+                var current = Math.floor(eased * target);
+                counter.textContent = prefix + current.toLocaleString('ru-RU') + suffix;
+                if (progress < 1) {
+                  requestAnimationFrame(animateCounter);
+                } else {
+                  counter.textContent = prefix + target.toLocaleString('ru-RU') + suffix;
+                }
+              }
+
+              requestAnimationFrame(animateCounter);
+              counterObserver.unobserve(counter);
+            }
+          });
+        }, { threshold: 0.5 });
+
+        counters.forEach(function(counter) {
+          counterObserver.observe(counter);
+        });
+      }
+
+      /* ----------------------------------------
+         Revenue Calculator
+         ---------------------------------------- */
+      var calcMembers = document.getElementById('calcMembers');
+      var calcPrice = document.getElementById('calcPrice');
+      var calcMembersValue = document.getElementById('calcMembersValue');
+      var calcPriceValue = document.getElementById('calcPriceValue');
+      var calcMonthly = document.getElementById('calcMonthly');
+      var calcYearly = document.getElementById('calcYearly');
+
+      function formatRub(num) {
+        return num.toLocaleString('ru-RU') + ' \u20BD';
+      }
+
+      function updateCalc() {
+        if (!calcMembers || !calcPrice) return;
+        var members = parseInt(calcMembers.value, 10);
+        var price = parseInt(calcPrice.value, 10);
+        var monthly = members * price;
+        var yearly = monthly * 12;
+
+        if (calcMembersValue) calcMembersValue.textContent = members;
+        if (calcPriceValue) calcPriceValue.innerHTML = formatRub(price);
+        if (calcMonthly) calcMonthly.innerHTML = formatRub(monthly);
+        if (calcYearly) calcYearly.innerHTML = formatRub(yearly);
+      }
+
+      if (calcMembers) {
+        calcMembers.addEventListener('input', updateCalc);
+      }
+      if (calcPrice) {
+        calcPrice.addEventListener('input', updateCalc);
+      }
+
+      /* ----------------------------------------
+         Smooth scroll for anchor links
+         ---------------------------------------- */
+      document.addEventListener('click', function(e) {
+        var anchor = e.target.closest('a[href^="#"]');
+        if (!anchor) return;
+
+        var targetId = anchor.getAttribute('href');
+        if (targetId === '#') return;
+
+        var targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          e.preventDefault();
+          var navHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'), 10) || 72;
+          var targetPosition = targetEl.getBoundingClientRect().top + window.pageYOffset - navHeight;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
